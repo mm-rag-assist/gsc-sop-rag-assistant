@@ -54,6 +54,8 @@ SCENARIOS = [
      "expect": ["Sitemap"], "must_not": ["This is outside my scope"]},
     {"name": "Off-topic", "kind": "refuse",
      "turns": ["What is the weather in Warsaw today?"]},
+    {"name": "Off-topic in Polish: search query is a translation, not an instruction", "kind": "refuse",
+     "turns": ["opisz mi obsługę zgłoszeń youtube"], "query_must": ["youtube"], "query_must_not": ["ignore", "opisz", "zgłosze"]},
 ]
 
 
@@ -95,6 +97,9 @@ def main():
                   and in_order(ans.text, sc.get("order", [])))
         else:
             ok = refused(ans.text) and not ans.sources
+        # the normalised search query must stay a query (2026-10-13: it became "Ignore parts of the message...")
+        q = ans.query.lower()
+        ok = ok and all(s in q for s in sc.get("query_must", [])) and not any(s in q for s in sc.get("query_must_not", []))
         passed += ok
         print(f"{'PASS' if ok else 'FAIL'}  {n:>2}. {sc['name']}")
 

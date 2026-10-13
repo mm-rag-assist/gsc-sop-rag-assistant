@@ -5,12 +5,16 @@
 Used by the CLI (chat_cli.py), the tests (eval/test_answers.py) and the web UI (E6).
 """
 import re
+import warnings
 import time
 from dataclasses import dataclass, field
 from functools import lru_cache
 
 import config
 from rag import _clients, catalog_text, expand_to_sections, retrieve, sop_catalog
+
+# SDK warning for finish reasons it does not know yet (e.g. MALFORMED_RESPONSE) - handled in _generate.
+warnings.filterwarnings("ignore", message=r".* is not a valid FinishReason")
 
 PROMPTS = config.ROOT / "prompts"
 HISTORY_MESSAGES = 6  # last 3 exchanges (operator + assistant) are sent to the model
@@ -70,7 +74,15 @@ def _generate(contents, system, temperature):
                 resp = gemini_client().models.generate_content(
                     model=model, contents=contents, config=_make_config(system, temperature, model)
                 )
-                return (resp.text or "").strip(), model
+                text = (resp.text or "").strip()
+                if text:
+                    return text, model
+                # 2026-10-13: the model sometimes ends with finish reason MALFORMED_RESPONSE and
+                # no text - treat an empty answer like an overload: retry, then the fallback model.
+                reason = getattr(resp.candidates[0], "finish_reason", "?") if resp.candidates else "no candidates"
+                last_exc = RuntimeError(f"empty response ({reason})")
+                print(f"  [retry] {model}: empty response ({reason})")
+                continue
             except errors.APIError as exc:
                 last_exc = exc
                 code = getattr(exc, "code", None)

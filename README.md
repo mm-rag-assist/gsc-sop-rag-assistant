@@ -95,12 +95,30 @@ Open http://localhost:8501. Under every answer: the cited sources and a **"How t
 
 Console version for quick tests: `%PY% chat_cli.py`.
 
+## Screenshots
+
+**Answer with citations** – every step cites the SOP section it comes from; the operator steps and the customer reply are kept apart.
+
+![Answer with citations](docs/screenshots/01-answer-with-citations.png)
+
+**"How this answer was found"** – the normalised search query, the top fragments with similarity scores, the whole sections sent to the model, the model and the timing of each stage.
+
+![How this answer was found](docs/screenshots/02-how-this-answer-was-found.png)
+
+**Question in Polish, restricted request** – "admin access" is not allowed by the SOP: the assistant refuses with the SOP's reasoning and inserts the exact rejection template inside the step that sends it.
+
+![Polish question, restricted access](docs/screenshots/03-polish-question-restricted-access.png)
+
+**Out of scope** – a question about YouTube tickets is refused; nothing is invented from general knowledge.
+
+![Out of scope](docs/screenshots/04-out-of-scope.png)
+
 ## Tests
 
 | Script | What it checks | Result |
 |---|---|---|
 | `eval/test_retrieval.py` | is the right SOP in the top-k for 12 questions; scores of 6 off-topic questions (threshold choice) | Hit@1 11/12, Hit@5 12/12, right section 9/9 |
-| `eval/test_answers.py` | 14 end-to-end scenarios: facts the model cannot know, reply templates, Polish vs English, restricted request (admin access), follow-up, out-of-scope, prompt injection | 14/14 |
+| `eval/test_answers.py` | 15 end-to-end scenarios: facts the model cannot know, reply templates (complete, inside the right step), Polish vs English, restricted request (admin access), follow-up, out-of-scope, prompt injection | 15/15 |
 | `eval/bench_models.py` | latency and template completeness per model | |
 
 Reports are written to `eval/*.md`.
