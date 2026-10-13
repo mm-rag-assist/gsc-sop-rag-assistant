@@ -7,7 +7,7 @@ A retrieval-augmented assistant for Search Support operators. It answers questio
 
 ## Why
 
-The previous version of this assistant loaded whole SOP files (HTML with screenshots) into the model's context. It stopped working when files grew past the tool's size limit, and a new operator still had to find the right document among many. This version retrieves only the fragments that answer the question.
+Search Support operators handle many kinds of GSC tickets, each described in a separate SOP. A new operator has to find the right document and section, follow the steps and copy the exact reply for the requestor. The assistant does this in one question: it retrieves only the SOP fragments that answer it, explains the steps and cites the sections it used.
 
 ## Knowledge base
 
