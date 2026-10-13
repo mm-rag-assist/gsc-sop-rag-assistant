@@ -1,0 +1,13 @@
+# secrets
+.env
+# local vector database (rebuilt by ingest.py)
+chroma_db/
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+# never publish original (non-anonymized) SOPs or working notes
+SOP/
+*.docx
+*.pdf
